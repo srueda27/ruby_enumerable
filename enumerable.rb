@@ -126,4 +126,35 @@ module Enumerable
 
     return_element
   end
+
+  def my_inject(*parameters_array)
+    return raise 'no block given' unless block_given?
+
+    array = proper_array_for_inject(self)
+
+    if parameters_array.empty?
+      cumulative_variable = array[0]
+      array.shift
+    else
+      cumulative_variable = if (parameters_array[0].is_a? Hash) || (parameters_array[0].is_a? Array)
+                              parameters_array[0].class.new
+                            else
+                              parameters_array[0]
+                            end
+    end
+
+    array.my_each do |n|
+      cumulative_variable = yield cumulative_variable, n
+    end
+
+    cumulative_variable
+  end
+
+  def proper_array_for_inject(parms)
+    if parms.is_a? Range
+      parms.to_a
+    else
+      parms
+    end
+  end
 end
