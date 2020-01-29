@@ -60,15 +60,21 @@ module Enumerable
         # return true unless any of the values does not meet the statement
         return false unless yield n
       end
-    elsif args.is_a? Regexp
-      return my_select { |element| !element.to_s.match(args) }.empty?
-    elsif args.is_a? Class
-      return my_select { |element| element.class != args }.empty?
-    else
-      return my_select { |element| element != args }.empty?
     end
 
+    return validate_all(args) unless args.nil?
+
     true
+  end
+
+  def validate_all(args)
+    if args.is_a? Regexp
+      my_select { |element| !element.to_s.match(args) }.empty?
+    elsif args.is_a? Class
+      my_select { |element| element.class != args }.empty?
+    else
+      my_select { |element| element != args }.empty?
+    end
   end
 
   def my_any?(args = nil)
@@ -78,15 +84,21 @@ module Enumerable
       my_each do |n|
         return true if yield n
       end
-    elsif args.is_a? Regexp
-      return !my_select { |element| element.to_s.match(args) }.empty?
-    elsif args.is_a? Class
-      return !my_select { |element| element.class == args }.empty?
-    else
-      return !my_select { |element| element == args }.empty?
     end
 
+    return validate_any(args) unless args.nil?
+
     false
+  end
+
+  def validate_any(args)
+    if args.is_a? Regexp
+      !my_select { |element| element.to_s.match(args) }.empty?
+    elsif args.is_a? Class
+      !my_select { |element| element.class == args }.empty?
+    else
+      !my_select { |element| element == args }.empty?
+    end
   end
 
   def my_none?(args = nil)
@@ -97,15 +109,21 @@ module Enumerable
         # return true unless any of the values does not meet the statement
         return true unless yield n
       end
-    elsif args.is_a? Regexp
-      return !my_select { |element| !element.to_s.match(args) }.empty?
-    elsif args.is_a? Class
-      return !my_select { |element| element.class != args }.empty?
-    else
-      return !my_select { |element| element != args }.empty?
     end
 
+    return validate_none(args) unless args.nil?
+
     false
+  end
+
+  def validate_none(args)
+    if args.is_a? Regexp
+      !my_select { |element| !element.to_s.match(args) }.empty?
+    elsif args.is_a? Class
+      !my_select { |element| element.class != args }.empty?
+    else
+      !my_select { |element| element != args }.empty?
+    end
   end
 
   def my_count(args = nil)
@@ -143,9 +161,7 @@ module Enumerable
   end
 
   def my_inject(initial = nil, sim = nil)
-    return raise 'no block given' unless block_given?
-
-    array = proper_array_for_inject(self)
+    array = return_array(self)
 
     if initial.nil?
       initial = array[0]
@@ -154,10 +170,13 @@ module Enumerable
       initial = initial[0].class.new
     end
 
+    no_block_simbol = validate_no_block_symbol(block_given?, initial, array)
+
+    return no_block_simbol unless no_block_simbol.nil?
+
     unless sim.nil?
-      array.my_each do |n|
-        initial = initial.send sim, n
-      end
+      array.my_each { |n| initial = initial.send sim, n }
+      return initial
     end
 
     array.my_each do |n|
@@ -167,7 +186,19 @@ module Enumerable
     initial
   end
 
-  def proper_array_for_inject(parms)
+  def validate_no_block_symbol(given_block, initial, array)
+    operate_initial_symbol(initial, array) if !given_block && (initial.is_a? Symbol)
+  end
+
+  def operate_initial_symbol(initial, array)
+    symbol = initial
+    initial = array[0]
+    array.shift
+    array.my_each { |n| initial = initial.send symbol, n }
+    initial
+  end
+
+  def return_array(parms)
     if parms.is_a? Range
       parms.to_a
     else
