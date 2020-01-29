@@ -115,13 +115,19 @@ module Enumerable
     count
   end
 
-  def my_map
-    return to_enum(:my_map) unless block_given?
+  def my_map(proc = nil)
+    return to_enum(:my_map) if !block_given? && proc.nil?
 
     return_element = []
 
-    my_each_with_index do |n, idx|
-      return_element[idx] = yield n
+    if !proc.nil?
+      my_each_with_index do |n, idx|
+        return_element[idx] = proc.call(n)
+      end
+    else
+      my_each_with_index do |n, idx|
+        return_element[idx] = yield n
+      end
     end
 
     return_element
@@ -157,4 +163,8 @@ module Enumerable
       parms
     end
   end
+end
+
+def multiply_els(array)
+  array.my_inject { |multiply, n| multiply * n }
 end
