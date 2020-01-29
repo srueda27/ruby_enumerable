@@ -93,7 +93,7 @@ module Enumerable
 
   def my_none?(args = nil)
     if args.nil?
-      return !my_select { |element| element == false || element.nil? }.empty? unless block_given?
+      return !my_select { |element| element == true }.empty? unless block_given?
 
       my_each do |n|
         return true unless yield n
@@ -107,11 +107,11 @@ module Enumerable
 
   def validate_none(args)
     if args.is_a? Regexp
-      !my_select { |element| !element.to_s.match(args) }.empty?
+      my_select { |element| element.to_s.match(args) }.empty?
     elsif args.is_a? Class
-      !my_select { |element| element.class != args }.empty?
+      my_select { |element| element.class == args }.empty?
     else
-      !my_select { |element| element != args }.empty?
+      my_select { |element| element == args }.empty?
     end
   end
 

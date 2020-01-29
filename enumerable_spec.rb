@@ -151,20 +151,24 @@ describe 'my_any?' do
 end
 
 describe 'my_none?' do
-  it 'block not given, none of the elements false or nil' do
+  it 'block not given, none of the elements is true' do
     expect([1, 5, 2].my_none?).to eq(false)
   end
 
-  it 'block not given, all of the elements false or nil' do
-    expect([nil, false].my_none?).to eq(true)
+  it 'pattern other than a Class or Regex' do
+    expect(%w[dog dog dog dog].my_none?('cat')).to eq(true)
   end
 
   it 'pattern other than a Class or Regex' do
     expect(%w[dog dog dog dog].my_none?('dog')).to eq(false)
   end
 
-  it 'pattern other than a Class or Regex, false' do
-    expect(%w[dog dog cat dog].my_none?('dog')).to eq(true)
+  it 'Class, false' do
+    expect(%w[dog dog dog dog].my_none?(String)).to eq(false)
+  end
+
+  it 'Class, true' do
+    expect(%w[dog dog dog dog].my_none?(Integer)).to eq(true)
   end
 
   it 'none with array true' do
