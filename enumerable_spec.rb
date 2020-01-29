@@ -151,10 +151,6 @@ describe 'my_any?' do
 end
 
 describe 'my_none?' do
-  it 'block not given, none of the elements is true' do
-    expect([1, 5, 2].my_none?).to eq(false)
-  end
-
   it 'pattern other than a Class or Regex' do
     expect(%w[dog dog dog dog].my_none?('cat')).to eq(true)
   end
@@ -250,7 +246,7 @@ end
 
 describe 'my_inject' do
   it 'sums' do
-    expect([1, 2, 4, 5].my_inject(:+)).to eq([1, 2, 4, 5].inject(:+))
+    expect((1..10).my_inject(:+)).to eq((1..10).inject(:+))
   end
 
   it 'sums with a starting point' do

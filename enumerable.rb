@@ -93,7 +93,7 @@ module Enumerable
 
   def my_none?(args = nil)
     if args.nil?
-      return !my_select { |element| element == true }.empty? unless block_given?
+      return my_select { |element| element == true }.empty? unless block_given?
 
       my_each do |n|
         return true unless yield n
