@@ -75,6 +75,14 @@ describe 'my_all?' do
     expect([1, 5, nil].my_all?).to eq(false)
   end
 
+  it 'pattern other than a Class or Regex' do
+    expect(%w[dog dog dog dog].my_all?('dog')).to eq(true)
+  end
+
+  it 'pattern other than a Class or Regex, false' do
+    expect(%w[dog dog cat dog].my_all?('dog')).to eq(false)
+  end
+
   it 'class given, all the elements from that class' do
     expect([1, 5, 8].my_all?(Integer)).to eq(true)
   end
@@ -113,6 +121,10 @@ describe 'my_any?' do
     expect([nil, false, nil].my_any?).to eq(false)
   end
 
+  it 'pattern other than a Class or Regex' do
+    expect(%w[dog door rod blade].my_any?('dog')).to eq(true)
+  end
+
   it 'class given, any of the elements from that class' do
     expect([1, '5', 8].my_any?(Integer)).to eq(true)
   end
@@ -145,6 +157,14 @@ describe 'my_none?' do
 
   it 'block not given, all of the elements false or nil' do
     expect([nil, false].my_none?).to eq(true)
+  end
+
+  it 'pattern other than a Class or Regex' do
+    expect(%w[dog dog dog dog].my_none?('dog')).to eq(false)
+  end
+
+  it 'pattern other than a Class or Regex, false' do
+    expect(%w[dog dog cat dog].my_none?('dog')).to eq(true)
   end
 
   it 'none with array true' do

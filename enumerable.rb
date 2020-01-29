@@ -62,8 +62,10 @@ module Enumerable
       end
     elsif args.is_a? Regexp
       return my_select { |element| !element.to_s.match(args) }.empty?
-    else
+    elsif args.is_a? Class
       return my_select { |element| element.class != args }.empty?
+    else
+      return my_select { |element| element != args }.empty?
     end
 
     true
@@ -78,8 +80,10 @@ module Enumerable
       end
     elsif args.is_a? Regexp
       return !my_select { |element| element.to_s.match(args) }.empty?
-    else
+    elsif args.is_a? Class
       return !my_select { |element| element.class == args }.empty?
+    else
+      return !my_select { |element| element == args }.empty?
     end
 
     false
@@ -95,17 +99,17 @@ module Enumerable
       end
     elsif args.is_a? Regexp
       return !my_select { |element| !element.to_s.match(args) }.empty?
-    else
+    elsif args.is_a? Class
       return !my_select { |element| element.class != args }.empty?
+    else
+      return !my_select { |element| element != args }.empty?
     end
 
     false
   end
 
   def my_count(args = nil)
-    unless args.nil?
-      my_select { |n| n == args }.size
-    else
+    if args.nil?
       return length unless block_given?
 
       count = 0
@@ -115,6 +119,8 @@ module Enumerable
       end
 
       count
+    else
+      my_select { |n| n == args }.size
     end
   end
 
@@ -136,27 +142,29 @@ module Enumerable
     return_element
   end
 
-  def my_inject(*parameters_array)
+  def my_inject(initial = nil, sim = nil)
     return raise 'no block given' unless block_given?
 
     array = proper_array_for_inject(self)
 
-    if parameters_array.empty?
-      cumulative_variable = array[0]
+    if initial.nil?
+      initial = array[0]
       array.shift
-    else
-      cumulative_variable = if (parameters_array[0].is_a? Hash) || (parameters_array[0].is_a? Array)
-                              parameters_array[0].class.new
-                            else
-                              parameters_array[0]
-                            end
+    elsif (initial.is_a? Hash) || (initial.is_a? Array)
+      initial = initial[0].class.new
+    end
+
+    unless sim.nil?
+      array.my_each do |n|
+        initial = initial.send sim, n
+      end
     end
 
     array.my_each do |n|
-      cumulative_variable = yield cumulative_variable, n
+      initial = yield initial, n
     end
 
-    cumulative_variable
+    initial
   end
 
   def proper_array_for_inject(parms)
