@@ -18,7 +18,6 @@ module Enumerable
 
     length.times do |idx|
       if is_a? Hash
-        # |(array), idx|, since its receiving an array (inside the parenthesis) I had to return an array
         yield [to_a[idx][0], to_a[idx][1]], idx
       else
         yield self[idx], idx
@@ -30,21 +29,12 @@ module Enumerable
 
   def my_select
     return to_enum(:my_select) unless block_given?
-
-    # the select method works passing a true/false statement (a comparison) via the block (yield)
-    # and return back an Array/Hash depending what it got
-
     return_element = self.class.new
 
     my_each do |n|
-      # if it is a Hash then I need to add the key and value if the pair is "selected" (the statement/yield is true)
       if is_a? Hash
         return_element[n.to_a[0]] = n.to_a[1] if yield n.to_a[0], n.to_a[1]
       elsif yield n
-        # If not a Hash and the statement is true push the element to the array
-        # Convert if nested into and elsif.
-        # It is made with an elsif because if not a Hash then an Array, and the only else statement is
-        # if yield is true or false.
         return_element.push(n)
       end
     end
@@ -57,7 +47,6 @@ module Enumerable
       return my_select { |element| element == false || element.nil? }.empty? unless block_given?
 
       my_each do |n|
-        # return true unless any of the values does not meet the statement
         return false unless yield n
       end
     end
@@ -106,7 +95,6 @@ module Enumerable
       return !my_select { |element| element == false || element.nil? }.empty? unless block_given?
 
       my_each do |n|
-        # return true unless any of the values does not meet the statement
         return true unless yield n
       end
     end
@@ -170,9 +158,9 @@ module Enumerable
       initial = initial[0].class.new
     end
 
-    no_block_simbol = validate_no_block_symbol(block_given?, initial, array)
+    no_block_simbol_value = validate_no_block_symbol(block_given?, initial, array)
 
-    return no_block_simbol unless no_block_simbol.nil?
+    return no_block_simbol_value unless no_block_simbol_value.nil?
 
     unless sim.nil?
       array.my_each { |n| initial = initial.send sim, n }
