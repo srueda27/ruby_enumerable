@@ -29,6 +29,7 @@ module Enumerable
 
   def my_select
     return to_enum(:my_select) unless block_given?
+
     return_element = self.class.new
 
     my_each do |n|
