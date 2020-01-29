@@ -228,18 +228,6 @@ describe 'my_inject' do
   it 'divides ranges' do
     expect((1..5).my_inject { |divides, n| divides / n }).to eq(0)
   end
-
-  it 'creates an Array' do
-    expect([10, 20, 30, 5, 7, 9, 3].each_with_object([]) do |element, result|
-             result << element.to_s if element > 9
-           end).to eq(%w[10 20 30])
-  end
-
-  it 'creates a Hash' do
-    expect([[:student, 'Terrance Koar'], [:course, 'Web Dev']].each_with_object({}) do |element, result|
-             result[element.first.to_s] = element.last.upcase
-           end).to eq('student' => 'TERRANCE KOAR', 'course' => 'WEB DEV')
-  end
 end
 
 describe 'multiply_els' do
