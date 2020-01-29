@@ -52,67 +52,70 @@ module Enumerable
     return_element
   end
 
-  def my_all?
-    # see if all or no values match condition
-    return true unless block_given?
+  def my_all?(args = nil)
+    if args.nil?
+      return my_select { |element| element == false || element.nil? }.empty? unless block_given?
 
-    my_each do |n|
-      # return true unless any of the values does not meet the statement
-      if is_a? Hash
-        return false unless yield n.to_a[0], n.to_a[1]
-      elsif !(yield n)
-        return false
+      my_each do |n|
+        # return true unless any of the values does not meet the statement
+        return false unless yield n
       end
+    elsif args.is_a? Regexp
+      return my_select { |element| !element.to_s.match(args) }.empty?
+    else
+      return my_select { |element| element.class != args }.empty?
     end
 
     true
   end
 
-  def my_any?
-    # see if any of the values match condition
-    return true unless block_given?
+  def my_any?(args = nil)
+    if args.nil?
+      return !my_select { |element| element != false && !element.nil? }.empty? unless block_given?
 
-    my_each do |n|
-      # return true if any of the values meet the statement
-      if is_a? Hash
-        return true if yield n.to_a[0], n.to_a[1]
-      elsif yield n
-        return true
+      my_each do |n|
+        return true if yield n
       end
+    elsif args.is_a? Regexp
+      return !my_select { |element| element.to_s.match(args) }.empty?
+    else
+      return !my_select { |element| element.class == args }.empty?
     end
 
     false
   end
 
-  def my_none?
-    # the reverse of my_all?
-    return false unless block_given?
+  def my_none?(args = nil)
+    if args.nil?
+      return !my_select { |element| element == false || element.nil? }.empty? unless block_given?
 
-    my_each do |n|
-      if is_a? Hash
-        return true unless yield n.to_a[0], n.to_a[1]
-      elsif !(yield n)
-        return true
+      my_each do |n|
+        # return true unless any of the values does not meet the statement
+        return true unless yield n
       end
+    elsif args.is_a? Regexp
+      return !my_select { |element| !element.to_s.match(args) }.empty?
+    else
+      return !my_select { |element| element.class != args }.empty?
     end
 
     false
   end
 
-  def my_count
-    return length unless block_given?
+  def my_count(args = nil)
+    unless args.nil?
+      my_select { |n| n == args }.size
+    else
+      return length unless block_given?
 
-    count = 0
+      count = 0
 
-    my_each do |n|
-      if is_a? Hash
-        count += 1 if yield n.to_a[0], n.to_a[1]
-      elsif yield n
-        count += 1
+      my_each do |n|
+        count += 1 if yield n
       end
-    end
 
-    count
+      count
+    end
   end
 
   def my_map(proc = nil)

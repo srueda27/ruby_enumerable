@@ -59,8 +59,32 @@ describe 'my_select' do
 end
 
 describe 'my_all?' do
-  it 'block not given' do
+  it 'block not given, none of the elements false or nil' do
     expect([1, 5, 2].my_all?).to eq(true)
+  end
+
+  it 'block not given, one of the elements false or nil' do
+    expect([1, nil, 2].my_all?).to eq(false)
+  end
+
+  it 'block not given, one of the elements false' do
+    expect([1, false, 2].my_all?).to eq(false)
+  end
+
+  it 'block not given, one of the elements nil' do
+    expect([1, 5, nil].my_all?).to eq(false)
+  end
+
+  it 'class given, all the elements from that class' do
+    expect([1, 5, 8].my_all?(Integer)).to eq(true)
+  end
+
+  it 'class given, not all the elements from that class' do
+    expect([1, 5, 8].my_all?(String)).to eq(false)
+  end
+
+  it 'class given and block given' do
+    expect([1, 5, 8].my_all?(Integer) { |n| n > 3 }).to eq(true)
   end
 
   it 'all with array false' do
@@ -81,8 +105,20 @@ describe 'my_all?' do
 end
 
 describe 'my_any?' do
-  it 'block not given' do
-    expect([1, 5, 2].my_any?).to eq(true)
+  it 'block not given, any of the elements not false or nil' do
+    expect([nil, false, nil, 1].my_any?).to eq(true)
+  end
+
+  it 'block not given, all of the elements false or nil' do
+    expect([nil, false, nil].my_any?).to eq(false)
+  end
+
+  it 'class given, any of the elements from that class' do
+    expect([1, '5', 8].my_any?(Integer)).to eq(true)
+  end
+
+  it 'class given, none of the elements from that class' do
+    expect([1, 5, 8].my_any?(String)).to eq(false)
   end
 
   it 'any with array true' do
@@ -103,8 +139,12 @@ describe 'my_any?' do
 end
 
 describe 'my_none?' do
-  it 'block not given' do
+  it 'block not given, none of the elements false or nil' do
     expect([1, 5, 2].my_none?).to eq(false)
+  end
+
+  it 'block not given, all of the elements false or nil' do
+    expect([nil, false].my_none?).to eq(true)
   end
 
   it 'none with array true' do
@@ -139,6 +179,14 @@ describe 'my_count' do
 
   it 'counts hash' do
     expect({ a: 1, b: 2, c: 0, d: 5 }.my_count { |_k, v| v < 5 }).to eq(3)
+  end
+
+  it 'count with params' do
+    expect([1, 5, 2].my_count(0)).to eq(0)
+  end
+
+  it 'count with params, equals' do
+    expect([1, 5, 2].my_count(2)).to eq(1)
   end
 end
 
