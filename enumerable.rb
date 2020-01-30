@@ -154,7 +154,7 @@ module Enumerable
 
     if initial.nil?
       initial = array[0]
-      array.shift
+      array = array[1..-1]
     elsif (initial.is_a? Hash) || (initial.is_a? Array)
       initial = initial[0].class.new
     end
@@ -182,7 +182,7 @@ module Enumerable
   def operate_initial_symbol(initial, array)
     symbol = initial
     initial = array[0]
-    array.shift
+    array = array[1..-1]
     array.my_each { |n| initial = initial.send symbol, n }
     initial
   end
