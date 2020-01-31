@@ -71,6 +71,20 @@ module Enumerable
     false
   end
 
+  def my_any?(arg = nil)
+    return !my_select { |element| element }.empty? if !block_given? && arg.nil?
+
+    if block_given?
+      my_each { |n| return true if yield n }
+    else
+      proc = validate_args(arg)
+
+      my_each { |n| return true if proc.call(n) }
+    end
+
+    false
+  end
+
   def validate_args(arg)
     if arg.nil?
       proc { |e| e }
@@ -80,30 +94,6 @@ module Enumerable
       proc { |e| e.class == arg }
     else
       proc { |e| e == arg }
-    end
-  end
-
-  def my_any?(args = nil)
-    if args.nil?
-      return !my_select { |element| element != false && !element.nil? }.empty? unless block_given?
-
-      my_each do |n|
-        return true if yield n
-      end
-    end
-
-    return validate_any(args) unless args.nil?
-
-    false
-  end
-
-  def validate_any(args)
-    if args.is_a? Regexp
-      !my_select { |element| element.to_s.match(args) }.empty?
-    elsif args.is_a? Class
-      !my_select { |element| element.class == args }.empty?
-    else
-      !my_select { |element| element == args }.empty?
     end
   end
 
