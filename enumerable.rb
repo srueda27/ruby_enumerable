@@ -43,27 +43,43 @@ module Enumerable
     return_element
   end
 
-  def my_all?(args = nil)
-    if args.nil?
-      return my_select { |element| element == false || element.nil? }.empty? unless block_given?
+  def my_all?(arg = nil)
+    return my_all?(arg) if block_given? && !arg.nil?
 
-      my_each do |n|
-        return false unless yield n
-      end
+    if block_given?
+      my_each { |n| return false unless yield n }
+    else
+      proc = validate_args(arg)
+
+      my_each { |n| return false unless proc.call(n) }
     end
-
-    return validate_all(args) unless args.nil?
 
     true
   end
 
-  def validate_all(args)
-    if args.is_a? Regexp
-      my_select { |element| !element.to_s.match(args) }.empty?
-    elsif args.is_a? Class
-      my_select { |element| element.class != args }.empty?
+  def my_none?(arg = nil)
+    return my_select { |element| element == true }.empty? if !block_given? && arg.nil?
+
+    if block_given?
+      my_each { |n| return true unless yield n }
     else
-      my_select { |element| element != args }.empty?
+      proc = validate_args(arg)
+
+      my_each { |n| return true unless proc.call(n) }
+    end
+
+    false
+  end
+
+  def validate_args(arg)
+    if arg.nil?
+      proc { |e| e }
+    elsif arg.is_a? Regexp
+      proc { |e| e.to_s.match(arg) }
+    elsif arg.is_a? Class
+      proc { |e| e.class == arg }
+    else
+      proc { |e| e == arg }
     end
   end
 
@@ -88,30 +104,6 @@ module Enumerable
       !my_select { |element| element.class == args }.empty?
     else
       !my_select { |element| element == args }.empty?
-    end
-  end
-
-  def my_none?(args = nil)
-    if args.nil?
-      return my_select { |element| element == true }.empty? unless block_given?
-
-      my_each do |n|
-        return true unless yield n
-      end
-    end
-
-    return validate_none(args) unless args.nil?
-
-    false
-  end
-
-  def validate_none(args)
-    if args.is_a? Regexp
-      my_select { |element| element.to_s.match(args) }.empty?
-    elsif args.is_a? Class
-      my_select { |element| element.class == args }.empty?
-    else
-      my_select { |element| element == args }.empty?
     end
   end
 

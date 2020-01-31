@@ -2,7 +2,8 @@ require 'enumerable'
 
 describe 'my_each' do
   it 'block not given' do
-    expect([1, 5, 2].my_each.class).to eq(Enumerator)
+    array = [1, 5, 2]
+    expect(array.my_each.class).to eq(Enumerator)
   end
 
   it 'returns element without changes' do
