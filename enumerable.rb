@@ -2,12 +2,10 @@ module Enumerable
   def my_each
     return to_enum(:my_each) unless block_given?
 
-    length.times do |idx|
-      if is_a? Hash
-        yield [to_a[idx][0], to_a[idx][1]]
-      else
-        yield self[idx]
-      end
+    if is_a? Hash
+      length.times { |idx| yield [to_a[idx][0], to_a[idx][1]] }
+    else
+      length.times { |idx| yield self[idx] }
     end
 
     self
@@ -16,12 +14,10 @@ module Enumerable
   def my_each_with_index
     return to_enum(:my_each_with_index) unless block_given?
 
-    length.times do |idx|
-      if is_a? Hash
-        yield [to_a[idx][0], to_a[idx][1]], idx
-      else
-        yield self[idx], idx
-      end
+    if is_a? Hash
+      length.times { |idx| yield [to_a[idx][0], to_a[idx][1]], idx }
+    else
+      length.times { |idx| yield self[idx], idx }
     end
 
     self
@@ -32,12 +28,10 @@ module Enumerable
 
     return_element = self.class.new
 
-    my_each do |n|
-      if is_a? Hash
-        return_element[n.to_a[0]] = n.to_a[1] if yield n.to_a[0], n.to_a[1]
-      elsif yield n
-        return_element.push(n)
-      end
+    if is_a? Hash
+      my_each { |n| return_element[n.to_a[0]] = n.to_a[1] if yield n.to_a[0], n.to_a[1] }
+    else
+      my_each { |n| return_element.push(n) if yield n }
     end
 
     return_element
