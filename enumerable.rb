@@ -2,12 +2,10 @@ module Enumerable
   def my_each
     return to_enum(:my_each) unless block_given?
 
-    length.times do |idx|
-      if is_a? Hash
-        yield [to_a[idx][0], to_a[idx][1]]
-      else
-        yield self[idx]
-      end
+    if is_a? Hash
+      length.times { |idx| yield [to_a[idx][0], to_a[idx][1]] }
+    elsif is_a? Array
+      length.times { |idx| yield self[idx] }
     end
 
     self
@@ -16,12 +14,10 @@ module Enumerable
   def my_each_with_index
     return to_enum(:my_each_with_index) unless block_given?
 
-    length.times do |idx|
-      if is_a? Hash
-        yield [to_a[idx][0], to_a[idx][1]], idx
-      else
-        yield self[idx], idx
-      end
+    if is_a? Hash
+      length.times { |idx| yield [to_a[idx][0], to_a[idx][1]], idx }
+    elsif is_a? Array
+      length.times { |idx| yield self[idx], idx }
     end
 
     self
@@ -32,86 +28,66 @@ module Enumerable
 
     return_element = self.class.new
 
-    my_each do |n|
-      if is_a? Hash
-        return_element[n.to_a[0]] = n.to_a[1] if yield n.to_a[0], n.to_a[1]
-      elsif yield n
-        return_element.push(n)
-      end
+    if is_a? Hash
+      my_each { |n| return_element[n.to_a[0]] = n.to_a[1] if yield n.to_a[0], n.to_a[1] }
+    else
+      my_each { |n| return_element.push(n) if yield n }
     end
 
     return_element
   end
 
-  def my_all?(args = nil)
-    if args.nil?
-      return my_select { |element| element == false || element.nil? }.empty? unless block_given?
+  def my_all?(arg = nil)
+    return my_all?(arg) if block_given? && !arg.nil?
 
-      my_each do |n|
-        return false unless yield n
-      end
+    if block_given?
+      my_each { |n| return false unless yield n }
+    else
+      proc = validate_args(arg)
+
+      my_each { |n| return false unless proc.call(n) }
     end
-
-    return validate_all(args) unless args.nil?
 
     true
   end
 
-  def validate_all(args)
-    if args.is_a? Regexp
-      my_select { |element| !element.to_s.match(args) }.empty?
-    elsif args.is_a? Class
-      my_select { |element| element.class != args }.empty?
+  def my_none?(arg = nil)
+    return my_select { |element| element == true }.empty? if !block_given? && arg.nil?
+
+    if block_given?
+      my_each { |n| return false if yield n }
     else
-      my_select { |element| element != args }.empty?
+      proc = validate_args(arg)
+
+      my_each { |n| return false if proc.call(n) }
     end
+
+    true
   end
 
-  def my_any?(args = nil)
-    if args.nil?
-      return !my_select { |element| element != false && !element.nil? }.empty? unless block_given?
+  def my_any?(arg = nil)
+    return !my_select { |element| element }.empty? if !block_given? && arg.nil?
 
-      my_each do |n|
-        return true if yield n
-      end
+    if block_given?
+      my_each { |n| return true if yield n }
+    else
+      proc = validate_args(arg)
+
+      my_each { |n| return true if proc.call(n) }
     end
-
-    return validate_any(args) unless args.nil?
 
     false
   end
 
-  def validate_any(args)
-    if args.is_a? Regexp
-      !my_select { |element| element.to_s.match(args) }.empty?
-    elsif args.is_a? Class
-      !my_select { |element| element.class == args }.empty?
+  def validate_args(arg)
+    if arg.nil?
+      proc { |e| e }
+    elsif arg.is_a? Regexp
+      proc { |e| e.to_s.match(arg) }
+    elsif arg.is_a? Class
+      proc { |e| e.class == arg }
     else
-      !my_select { |element| element == args }.empty?
-    end
-  end
-
-  def my_none?(args = nil)
-    if args.nil?
-      return my_select { |element| element == true }.empty? unless block_given?
-
-      my_each do |n|
-        return true unless yield n
-      end
-    end
-
-    return validate_none(args) unless args.nil?
-
-    false
-  end
-
-  def validate_none(args)
-    if args.is_a? Regexp
-      my_select { |element| element.to_s.match(args) }.empty?
-    elsif args.is_a? Class
-      my_select { |element| element.class == args }.empty?
-    else
-      my_select { |element| element == args }.empty?
+      proc { |e| e == arg }
     end
   end
 
