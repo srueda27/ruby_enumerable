@@ -2,7 +2,8 @@ require 'enumerable'
 
 describe 'my_each' do
   it 'block not given' do
-    expect([1, 5, 2].my_each.class).to eq(Enumerator)
+    array = [1, 5, 2]
+    expect(array.my_each.class).to eq(Enumerator)
   end
 
   it 'returns element without changes' do
@@ -175,20 +176,20 @@ describe 'my_none?' do
     expect(%w[dog dog dog dog].my_none?(Integer)).to eq(true)
   end
 
-  it 'none with array true' do
-    expect([1, 2, 4, 5].my_none? { |n| n > 3 }).to eq(true)
-  end
-
   it 'none with array false' do
-    expect([1, 2, 4, 5].my_none? { |n| n >= 1 }).to eq(false)
+    expect([1, 2, 4, 5].my_none? { |n| n > 3 }).to eq(false)
   end
 
-  it 'none with hash true' do
-    expect({ a: 1, b: 2, c: 0 }.my_none? { |_k, v| v == 2 }).to eq(true)
+  it 'none with array true' do
+    expect([1, 2, 4, 5].my_none? { |n| n > 10 }).to eq(true)
   end
 
   it 'none with hash false' do
-    expect({ a: 1, b: 2, c: 0 }.my_none? { |_k, v| v.is_a? Integer }).to eq(false)
+    expect({ a: 1, b: 2, c: 0 }.my_none? { |_k, v| v == 2 }).to eq(false)
+  end
+
+  it 'none with hash true' do
+    expect({ a: 1, b: 2, c: 0 }.my_none? { |_k, v| v.is_a? String }).to eq(true)
   end
 end
 
