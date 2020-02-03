@@ -55,14 +55,14 @@ module Enumerable
     return my_select { |element| element == true }.empty? if !block_given? && arg.nil?
 
     if block_given?
-      my_each { |n| return true unless yield n }
+      my_each { |n| return false if yield n }
     else
       proc = validate_args(arg)
 
-      my_each { |n| return true unless proc.call(n) }
+      my_each { |n| return false if proc.call(n) }
     end
 
-    false
+    true
   end
 
   def my_any?(arg = nil)
