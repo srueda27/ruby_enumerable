@@ -4,7 +4,7 @@ module Enumerable
 
     if is_a? Hash
       length.times { |idx| yield [to_a[idx][0], to_a[idx][1]] }
-    else
+    elsif is_a? Array
       length.times { |idx| yield self[idx] }
     end
 
@@ -16,7 +16,7 @@ module Enumerable
 
     if is_a? Hash
       length.times { |idx| yield [to_a[idx][0], to_a[idx][1]], idx }
-    else
+    elsif is_a? Array
       length.times { |idx| yield self[idx], idx }
     end
 
